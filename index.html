@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sourdough Bulk Fermentation Calculator & Timeline</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sourdough Bulk Fermentation Calculator &amp; Timeline v7</title>
+<style>
     :root {
       --bg: #f7f3eb;
       --panel: #ffffff;
@@ -456,341 +457,358 @@
         padding: 16px;
       }
     }
-  </style>
+  
+    /* Tabbed section interface */
+    .tabs-shell {
+      margin-top: 18px;
+    }
+
+    .tab-list {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: thin;
+      padding: 4px 2px 10px;
+      margin-bottom: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-button {
+      flex: 0 0 auto;
+      min-height: 44px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .tab-button:hover {
+      background: var(--panel-soft);
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .tab-button[aria-selected="true"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .tab-button:focus-visible {
+      outline: 3px solid rgba(138, 90, 43, 0.22);
+      outline-offset: 2px;
+    }
+
+    .tab-panel {
+      min-width: 0;
+    }
+
+    .tab-panel[hidden] {
+      display: none !important;
+    }
+
+    .tab-panel > .card,
+    .tab-panel > details {
+      margin-top: 0 !important;
+    }
+
+    .tab-panel > details {
+      box-shadow: var(--shadow);
+    }
+
+    .tab-panel:focus {
+      outline: none;
+    }
+
+    @media (max-width: 760px) {
+      .tab-list {
+        margin-left: -2px;
+        margin-right: -2px;
+      }
+
+      .tab-button {
+        font-size: 0.86rem;
+        padding-inline: 12px;
+      }
+    }
+</style>
 </head>
 <body>
-  <main class="container">
-    <header>
-      <h1>Sourdough Bulk Fermentation Calculator & Timeline</h1>
-      <p class="subtitle">
-        Enter your recipe weights, starter-feeding amounts, and fermentation conditions to calculate true total dough hydration, estimate bulk fermentation time, and build your stretch-and-fold schedule automatically.
-      </p>
-    </header>
-
-    <div class="grid grid-2">
-      <section class="card" aria-labelledby="recipe-heading">
-        <h2 id="recipe-heading">Recipe weights</h2>
-        <p class="hint">Enter weights directly in grams.</p>
-
-        <div class="field">
-          <label for="flour">Flour Added to Dough (g)</label>
-          <input id="flour" type="number" inputmode="decimal" min="1" step="1" value="600" aria-describedby="flour-note" />
-          <p id="flour-note" class="field-note">Enter only the flour you add separately. Do not include flour already contained in the starter.</p>
-        </div>
-
-        <div class="field">
-          <label for="water">Water Added to Dough (g)</label>
-          <input id="water" type="number" inputmode="decimal" min="0" step="1" value="420" aria-describedby="water-note" />
-          <p id="water-note" class="field-note">Enter only the water you add separately. The calculator adds the starter's water automatically.</p>
-        </div>
-
-        <div class="field">
-          <label for="starter">Starter Added (g)</label>
-          <input id="starter" type="number" inputmode="decimal" min="0" step="1" value="120" />
-        </div>
-
-        <p class="field-note">Starter hydration is calculated from the Starter Feeding section below.</p>
-      </section>
-
-      <section class="card" aria-labelledby="fermentation-heading">
-        <h2 id="fermentation-heading">Fermentation conditions</h2>
-        <p class="hint">Use the room temperature where the dough will ferment, and measure the dough itself immediately after mixing.</p>
-
-        <div class="field">
-          <label for="room-temp">Room Temperature (°F)</label>
-          <input id="room-temp" type="number" inputmode="decimal" step="0.1" value="72" aria-describedby="room-temp-note" />
-          <p id="room-temp-note" class="field-note">Enter the temperature of the room or proofing area where the dough will spend most of bulk fermentation.</p>
-        </div>
-
-        <div class="field">
-          <label for="dough-temp">
-            Dough Temperature After Mixing (°F)
-            <span class="field-subtitle">Final Dough Temperature (FDT)</span>
-          </label>
-          <input id="dough-temp" type="number" inputmode="decimal" step="0.1" value="78" aria-describedby="dough-temp-note" />
-          <p id="dough-temp-note" class="field-note">Measure the center of the dough with an instant-read thermometer immediately after mixing, at the start of bulk fermentation.</p>
-        </div>
-
-        <div class="field">
-          <label for="rise">Desired Rise Percentage (%)</label>
-          <input id="rise" type="number" inputmode="decimal" min="1" max="200" step="1" value="50" aria-describedby="rise-note" />
-          <p id="rise-note" class="field-note">Enter the approximate volume increase you want before ending bulk fermentation, such as 30%, 50%, or 75%.</p>
-        </div>
-      </section>
-    </div>
-
-
-
-    <section class="card" style="margin-top:18px;" aria-labelledby="starter-feeding-heading">
-      <h2 id="starter-feeding-heading">Starter Feeding</h2>
-      <p class="hint">
+<main class="container">
+<header>
+<h1>Sourdough Bulk Fermentation Calculator &amp; Timeline</h1>
+<p class="subtitle">Enter your recipe, starter feeding, fermentation conditions, and process timing in separate tabs. The calculator then computes true dough hydration, bulk-fermentation timing, and your stretch-and-fold schedule.</p>
+</header><div class="tabs-shell"><div aria-label="Sourdough calculator sections" class="tab-list" role="tablist"><button aria-controls="panel-recipe" aria-selected="true" class="tab-button" data-tab="recipe" id="tab-recipe" role="tab" tabindex="0" type="button">Recipe</button><button aria-controls="panel-starter" aria-selected="false" class="tab-button" data-tab="starter" id="tab-starter" role="tab" tabindex="-1" type="button">Starter Feeding</button><button aria-controls="panel-fermentation" aria-selected="false" class="tab-button" data-tab="fermentation" id="tab-fermentation" role="tab" tabindex="-1" type="button">Fermentation</button><button aria-controls="panel-timing" aria-selected="false" class="tab-button" data-tab="timing" id="tab-timing" role="tab" tabindex="-1" type="button">Process Timing</button><button aria-controls="panel-hydration" aria-selected="false" class="tab-button" data-tab="hydration" id="tab-hydration" role="tab" tabindex="-1" type="button">Hydration</button><button aria-controls="panel-results" aria-selected="false" class="tab-button" data-tab="results" id="tab-results" role="tab" tabindex="-1" type="button">Bulk Results</button><button aria-controls="panel-timeline" aria-selected="false" class="tab-button" data-tab="timeline" id="tab-timeline" role="tab" tabindex="-1" type="button">Timeline</button><button aria-controls="panel-breakdown" aria-selected="false" class="tab-button" data-tab="breakdown" id="tab-breakdown" role="tab" tabindex="-1" type="button">Calculation Breakdown</button><button aria-controls="panel-assumptions" aria-selected="false" class="tab-button" data-tab="assumptions" id="tab-assumptions" role="tab" tabindex="-1" type="button">Model Assumptions</button><button aria-controls="panel-math" aria-selected="false" class="tab-button" data-tab="math" id="tab-math" role="tab" tabindex="-1" type="button">Mathematical Model</button></div><div class="tab-panels"><div aria-labelledby="tab-recipe" class="tab-panel" id="panel-recipe" role="tabpanel" tabindex="0"><section aria-labelledby="recipe-heading" class="card">
+<h2 id="recipe-heading">Recipe weights</h2>
+<p class="hint">Enter weights directly in grams.</p>
+<div class="field">
+<label for="flour">Flour Added to Dough (g)</label>
+<input aria-describedby="flour-note" id="flour" inputmode="decimal" min="1" step="1" type="number"/>
+<p class="field-note" id="flour-note">Enter only the flour you add separately. Do not include flour already contained in the starter.</p>
+</div>
+<div class="field">
+<label for="water">Water Added to Dough (g)</label>
+<input aria-describedby="water-note" id="water" inputmode="decimal" min="0" step="1" type="number"/>
+<p class="field-note" id="water-note">Enter only the water you add separately. The calculator adds the starter's water automatically.</p>
+</div>
+<div class="field">
+<label for="starter">Starter Added (g)</label>
+<input id="starter" inputmode="decimal" min="0" step="1" type="number"/>
+</div>
+<p class="field-note">Starter hydration is calculated from the Starter Feeding section below.</p>
+</section></div><div aria-labelledby="tab-starter" class="tab-panel" hidden="" id="panel-starter" role="tabpanel" tabindex="0"><section aria-labelledby="starter-feeding-heading" class="card" style="margin-top:18px;">
+<h2 id="starter-feeding-heading">Starter Feeding</h2>
+<p class="hint">
         Enter the amounts used in the feeding that produced the starter you are using in this dough.
-        Your current seed starter is assumed to begin at <strong>100% hydration</strong>, based on your established 1:1:1 starter.
+        Your current seed starter is assumed to begin at <strong>100% hydration</strong>, based on your established — starter.
       </p>
-
-      <div class="grid grid-3">
-        <div class="field">
-          <label for="seed-starter">Seed Starter (g)</label>
-          <input id="seed-starter" type="number" inputmode="decimal" min="0.1" step="0.1" value="80" />
-          <p class="field-note">The mature starter carried into this feeding.</p>
-        </div>
-
-        <div class="field">
-          <label for="feed-flour">Feed Flour (g)</label>
-          <input id="feed-flour" type="number" inputmode="decimal" min="0" step="0.1" value="80" />
-        </div>
-
-        <div class="field">
-          <label for="feed-water">Feed Water (g)</label>
-          <input id="feed-water" type="number" inputmode="decimal" min="0" step="0.1" value="80" />
-        </div>
-      </div>
-
-      <div class="metrics" style="margin-top:0;">
-        <div class="metric">
-          <div class="metric-label">Feeding Ratio</div>
-          <div id="feeding-ratio" class="metric-value">1:1:1</div>
-          <div class="metric-note">seed starter : feed flour : feed water</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Resulting Starter Weight</div>
-          <div id="fed-starter-weight" class="metric-value">240.0 g</div>
-          <div class="metric-note">seed starter + feed flour + feed water</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Seed Starter Hydration Used</div>
-          <div class="metric-value">100.0%</div>
-          <div class="metric-note">current assumption for the seed starter</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Resulting Starter Hydration</div>
-          <div id="starter-hydration-display" class="metric-value">100.0%</div>
-          <div class="metric-note">includes the flour and water already inside the seed starter</div>
-        </div>
-      </div>
-
-      <div class="process-summary">
+<div class="grid grid-3">
+<div class="field">
+<label for="seed-starter">Seed Starter (g)</label>
+<input id="seed-starter" inputmode="decimal" min="0.1" step="0.1" type="number"/>
+<p class="field-note">The mature starter carried into this feeding.</p>
+</div>
+<div class="field">
+<label for="feed-flour">Feed Flour (g)</label>
+<input id="feed-flour" inputmode="decimal" min="0" step="0.1" type="number"/>
+</div>
+<div class="field">
+<label for="feed-water">Feed Water (g)</label>
+<input id="feed-water" inputmode="decimal" min="0" step="0.1" type="number"/>
+</div>
+</div>
+<div class="metrics" style="margin-top:0;">
+<div class="metric">
+<div class="metric-label">Feeding Ratio</div>
+<div class="metric-value" id="feeding-ratio">—</div>
+<div class="metric-note">seed starter : feed flour : feed water</div>
+</div>
+<div class="metric">
+<div class="metric-label">Resulting Starter Weight</div>
+<div class="metric-value" id="fed-starter-weight">—</div>
+<div class="metric-note">seed starter + feed flour + feed water</div>
+</div>
+<div class="metric">
+<div class="metric-label">Seed Starter Hydration Used</div>
+<div class="metric-value">—</div>
+<div class="metric-note">current assumption for the seed starter</div>
+</div>
+<div class="metric">
+<div class="metric-label">Resulting Starter Hydration</div>
+<div class="metric-value" id="starter-hydration-display">—</div>
+<div class="metric-note">includes the flour and water already inside the seed starter</div>
+</div>
+</div>
+<div class="process-summary">
         If you later maintain a non-100%-hydration starter for multiple feedings, the seed starter itself will no longer be 100% hydration. For an exact single-feed calculation at that point, the seed starter hydration must also be known.
       </div>
-    </section>
-
-    <section class="card" style="margin-top:18px;" aria-labelledby="timing-heading">
-      <h2 id="timing-heading">Your process timing</h2>
-      <p class="hint">
+</section></div><div aria-labelledby="tab-fermentation" class="tab-panel" hidden="" id="panel-fermentation" role="tabpanel" tabindex="0"><section aria-labelledby="fermentation-heading" class="card">
+<h2 id="fermentation-heading">Fermentation conditions</h2>
+<p class="hint">Use the room temperature where the dough will ferment, and measure the dough itself immediately after mixing.</p>
+<div class="field">
+<label for="room-temp">Room Temperature (°F)</label>
+<input aria-describedby="room-temp-note" id="room-temp" inputmode="decimal" step="0.1" type="number"/>
+<p class="field-note" id="room-temp-note">Enter the temperature of the room or proofing area where the dough will spend most of bulk fermentation.</p>
+</div>
+<div class="field">
+<label for="dough-temp">
+            Dough Temperature After Mixing (°F)
+            <span class="field-subtitle">Final Dough Temperature (FDT)</span>
+</label>
+<input aria-describedby="dough-temp-note" id="dough-temp" inputmode="decimal" step="0.1" type="number"/>
+<p class="field-note" id="dough-temp-note">Measure the center of the dough with an instant-read thermometer immediately after mixing, at the start of bulk fermentation.</p>
+</div>
+<div class="field">
+<label for="rise">Desired Rise Percentage (%)</label>
+<input aria-describedby="rise-note" id="rise" inputmode="decimal" max="200" min="1" step="1" type="number"/>
+<p class="field-note" id="rise-note">Enter the approximate volume increase you want before ending bulk fermentation, such as 30%, 50%, or 75%.</p>
+</div>
+</section></div><div aria-labelledby="tab-timing" class="tab-panel" hidden="" id="panel-timing" role="tabpanel" tabindex="0"><section aria-labelledby="timing-heading" class="card" style="margin-top:18px;">
+<h2 id="timing-heading">Your process timing</h2>
+<p class="hint">
         The bulk clock starts when the flour has been fully mixed into the dissolved starter and water. Change any duration below if your routine changes.
       </p>
-
-      <div class="timing-grid">
-        <div class="field">
-          <label for="start-time">Bulk Fermentation Start Time</label>
-          <div class="inline-row">
-            <input id="start-time" type="time" aria-describedby="start-time-note" />
-            <button id="use-now" type="button" class="secondary">Use current time</button>
-          </div>
-          <p id="start-time-note" class="field-note">Use the time the flour is fully mixed into the starter-water mixture.</p>
-        </div>
-
-        <div class="field">
-          <label for="autolyse-minutes">Autolyse / Rest Duration (minutes)</label>
-          <input id="autolyse-minutes" type="number" min="0" step="1" value="60" />
-          <p class="field-note">Your current routine: 60 minutes before adding salt.</p>
-        </div>
-
-        <div class="field">
-          <label for="salt-fold-minutes">Add Salt + Initial Stretch & Fold (minutes)</label>
-          <input id="salt-fold-minutes" type="number" min="0" step="1" value="2" />
-          <p class="field-note">Your current routine: about 2 minutes.</p>
-        </div>
-
-        <div class="field">
-          <label for="rest-before-fold1">Rest Before Stretch & Fold Set 1 (minutes)</label>
-          <input id="rest-before-fold1" type="number" min="0" step="1" value="30" />
-        </div>
-
-        <div class="field">
-          <label for="fold1-to-fold2">Set 1 → Set 2 Interval (minutes)</label>
-          <input id="fold1-to-fold2" type="number" min="0" step="1" value="30" />
-        </div>
-
-        <div class="field">
-          <label for="fold2-to-fold3">Set 2 → Set 3 Interval (minutes)</label>
-          <input id="fold2-to-fold3" type="number" min="0" step="1" value="30" />
-        </div>
-      </div>
-
-      <div id="process-summary" class="process-summary">Your schedule will appear below after a valid start time is entered.</div>
-    </section>
-
-    <section class="card" style="margin-top:18px;" aria-labelledby="hydration-heading">
-      <h2 id="hydration-heading">Starter composition & true dough hydration</h2>
-      <p class="hint">The starter hydration is derived from your feeding inputs, then the starter used in the dough is separated into its flour and water components before total dough hydration is calculated.</p>
-
-      <div class="metrics" style="margin-top:0;">
-        <div class="metric">
-          <div class="metric-label">Starter Weight %</div>
-          <div id="inoculation" class="metric-value">20.0%</div>
-          <div class="metric-note">starter weight ÷ flour added to dough</div>
-        </div>
-
-        <div class="metric">
-          <div class="metric-label">Direct-Mix Hydration</div>
-          <div id="hydration" class="metric-value">70.0%</div>
-          <div class="metric-note">added water ÷ added flour; excludes starter components</div>
-        </div>
-
-        <div class="metric">
-          <div class="metric-label">Flour Inside Starter</div>
-          <div id="starter-flour" class="metric-value">60.0 g</div>
-          <div class="metric-note">calculated from starter weight and hydration</div>
-        </div>
-
-        <div class="metric">
-          <div class="metric-label">Water Inside Starter</div>
-          <div id="starter-water" class="metric-value">60.0 g</div>
-          <div class="metric-note">calculated from starter weight and hydration</div>
-        </div>
-
-        <div class="metric">
-          <div class="metric-label">True Total Flour</div>
-          <div id="true-flour" class="metric-value">660.0 g</div>
-          <div class="metric-note">added flour + starter flour</div>
-        </div>
-
-        <div class="metric">
-          <div class="metric-label">True Total Water</div>
-          <div id="true-water" class="metric-value">480.0 g</div>
-          <div class="metric-note">added water + starter water</div>
-        </div>
-
-        <div class="metric" style="grid-column:1 / -1;">
-          <div class="metric-label">True Total Dough Hydration</div>
-          <div id="true-hydration" class="metric-value">72.7%</div>
-          <div class="metric-note">(true total water ÷ true total flour) × 100 — includes the flour and water contained in your starter</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card result" aria-labelledby="result-heading">
-      <div class="result-grid">
-        <div class="result-cell">
-          <h2 id="result-heading">Estimated total bulk fermentation</h2>
-          <div id="bulk-time" class="big">—</div>
-          <div id="decimal-time" class="small">—</div>
-        </div>
-
-        <div class="result-cell">
-          <div class="metric-label">Estimated bulk finish</div>
-          <div id="bulk-end" class="big">—</div>
-          <div id="bulk-end-date" class="small">Enter a start time</div>
-        </div>
-
-        <div class="result-cell">
-          <div class="metric-label">Bulk time remaining now</div>
-          <div id="remaining-now" class="big">—</div>
-          <div id="elapsed-now" class="small">—</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card timeline-card" aria-labelledby="timeline-heading">
-      <h2 id="timeline-heading">Your fermentation timeline</h2>
-      <p class="hint">“Bulk remaining” shows how much estimated fermentation time is left at each milestone.</p>
-      <div id="timeline" class="timeline" aria-live="polite"></div>
-    </section>
-
-    <div class="grid grid-2" style="margin-top:18px;">
-      <section class="card" aria-labelledby="breakdown-heading">
-        <h2 id="breakdown-heading">Calculation breakdown</h2>
-
-        <div class="breakdown-row">
-          <span>Arrhenius temperature factor</span>
-          <strong id="temp-factor">—</strong>
-        </div>
-
-        <div class="breakdown-row">
-          <span>Rise multiplier</span>
-          <strong id="rise-factor">—</strong>
-        </div>
-
-        <div class="breakdown-row">
-          <span>Kinetic estimate</span>
-          <strong id="kinetic-time">—</strong>
-        </div>
-
-        <div class="breakdown-row">
-          <span>Thermal-lag safety offset</span>
-          <strong id="lag-time">—</strong>
-        </div>
-      </section>
-
-      <section class="card assumptions" aria-labelledby="model-heading">
-        <h2 id="model-heading">Model assumptions</h2>
-
-        <p><strong>Bulk starts:</strong> when the flour is mixed into the starter-water mixture.</p>
-
-        <p><strong>Baseline:</strong> 3.5 hours at 80°F for a 50% rise target.</p>
-
-        <p>
-          <strong>Temperature kinetics:</strong> Arrhenius scaling is calibrated so the fermentation
+<div class="timing-grid">
+<div class="field">
+<label for="start-time">Bulk Fermentation Start Time</label>
+<div class="inline-row">
+<input aria-describedby="start-time-note" id="start-time" type="time"/>
+<button class="secondary" id="use-now" type="button">Use current time</button>
+</div>
+<p class="field-note" id="start-time-note">Use the time the flour is fully mixed into the starter-water mixture.</p>
+</div>
+<div class="field">
+<label for="autolyse-minutes">Autolyse / Rest Duration (minutes)</label>
+<input id="autolyse-minutes" min="0" step="1" type="number"/>
+<p class="field-note">Enter your preferred autolyse/rest duration.</p>
+</div>
+<div class="field">
+<label for="salt-fold-minutes">Add Salt + Initial Stretch &amp; Fold (minutes)</label>
+<input id="salt-fold-minutes" min="0" step="1" type="number"/>
+<p class="field-note">Enter how long you typically spend adding salt and performing the initial stretch and fold.</p>
+</div>
+<div class="field">
+<label for="rest-before-fold1">Rest Before Stretch &amp; Fold Set 1 (minutes)</label>
+<input id="rest-before-fold1" min="0" step="1" type="number"/>
+</div>
+<div class="field">
+<label for="fold1-to-fold2">Set 1 → Set 2 Interval (minutes)</label>
+<input id="fold1-to-fold2" min="0" step="1" type="number"/>
+</div>
+<div class="field">
+<label for="fold2-to-fold3">Set 2 → Set 3 Interval (minutes)</label>
+<input id="fold2-to-fold3" min="0" step="1" type="number"/>
+</div>
+</div>
+<div class="process-summary" id="process-summary">Your schedule will appear below after a valid start time is entered.</div>
+</section></div><div aria-labelledby="tab-hydration" class="tab-panel" hidden="" id="panel-hydration" role="tabpanel" tabindex="0"><section aria-labelledby="hydration-heading" class="card" style="margin-top:18px;">
+<h2 id="hydration-heading">Starter composition &amp; true dough hydration</h2>
+<p class="hint">The starter hydration is derived from your feeding inputs, then the starter used in the dough is separated into its flour and water components before total dough hydration is calculated.</p>
+<div class="metrics" style="margin-top:0;">
+<div class="metric">
+<div class="metric-label">Starter Weight %</div>
+<div class="metric-value" id="inoculation">—</div>
+<div class="metric-note">starter weight ÷ flour added to dough</div>
+</div>
+<div class="metric">
+<div class="metric-label">Direct-Mix Hydration</div>
+<div class="metric-value" id="hydration">—</div>
+<div class="metric-note">added water ÷ added flour; excludes starter components</div>
+</div>
+<div class="metric">
+<div class="metric-label">Flour Inside Starter</div>
+<div class="metric-value" id="starter-flour">—</div>
+<div class="metric-note">calculated from starter weight and hydration</div>
+</div>
+<div class="metric">
+<div class="metric-label">Water Inside Starter</div>
+<div class="metric-value" id="starter-water">—</div>
+<div class="metric-note">calculated from starter weight and hydration</div>
+</div>
+<div class="metric">
+<div class="metric-label">True Total Flour</div>
+<div class="metric-value" id="true-flour">6—</div>
+<div class="metric-note">added flour + starter flour</div>
+</div>
+<div class="metric">
+<div class="metric-label">True Total Water</div>
+<div class="metric-value" id="true-water">—</div>
+<div class="metric-note">added water + starter water</div>
+</div>
+<div class="metric" style="grid-column:1 / -1;">
+<div class="metric-label">True Total Dough Hydration</div>
+<div class="metric-value" id="true-hydration">—</div>
+<div class="metric-note">(true total water ÷ true total flour) × 100 — includes the flour and water contained in your starter</div>
+</div>
+</div>
+</section></div><div aria-labelledby="tab-results" class="tab-panel" hidden="" id="panel-results" role="tabpanel" tabindex="0"><section aria-labelledby="result-heading" class="card result">
+<div class="result-grid">
+<div class="result-cell">
+<h2 id="result-heading">Estimated total bulk fermentation</h2>
+<div class="big" id="bulk-time">—</div>
+<div class="small" id="decimal-time">—</div>
+</div>
+<div class="result-cell">
+<div class="metric-label">Estimated bulk finish</div>
+<div class="big" id="bulk-end">—</div>
+<div class="small" id="bulk-end-date">Enter a start time</div>
+</div>
+<div class="result-cell">
+<div class="metric-label">Bulk time remaining now</div>
+<div class="big" id="remaining-now">—</div>
+<div class="small" id="elapsed-now">—</div>
+</div>
+</div>
+</section></div><div aria-labelledby="tab-timeline" class="tab-panel" hidden="" id="panel-timeline" role="tabpanel" tabindex="0"><section aria-labelledby="timeline-heading" class="card timeline-card">
+<h2 id="timeline-heading">Your fermentation timeline</h2>
+<p class="hint">“Bulk remaining” shows how much estimated fermentation time is left at each milestone.</p>
+<div aria-live="polite" class="timeline" id="timeline"></div>
+</section></div><div aria-labelledby="tab-breakdown" class="tab-panel" hidden="" id="panel-breakdown" role="tabpanel" tabindex="0"><section aria-labelledby="breakdown-heading" class="card">
+<h2 id="breakdown-heading">Calculation breakdown</h2>
+<div class="breakdown-row">
+<span>Arrhenius temperature factor</span>
+<strong id="temp-factor">—</strong>
+</div>
+<div class="breakdown-row">
+<span>Rise multiplier</span>
+<strong id="rise-factor">—</strong>
+</div>
+<div class="breakdown-row">
+<span>Kinetic estimate</span>
+<strong id="kinetic-time">—</strong>
+</div>
+<div class="breakdown-row">
+<span>Thermal-lag safety offset</span>
+<strong id="lag-time">—</strong>
+</div>
+</section></div><div aria-labelledby="tab-assumptions" class="tab-panel" hidden="" id="panel-assumptions" role="tabpanel" tabindex="0"><section aria-labelledby="model-heading" class="card assumptions">
+<h2 id="model-heading">Model assumptions</h2>
+<p><strong>Bulk starts:</strong> when the flour is mixed into the starter-water mixture.</p>
+<p><strong>Baseline:</strong> 3.5 hours at 80°F for a 50% rise target.</p>
+<p>
+<strong>Temperature kinetics:</strong> Arrhenius scaling is calibrated so the fermentation
           rate changes by a factor of 2.5 for a 10°C temperature increase at the 80°F reference point.
         </p>
-
-        <p>
-          <strong>Rise scaling:</strong> Target time scales proportionally with desired rise relative
+<p>
+<strong>Rise scaling:</strong> Target time scales proportionally with desired rise relative
           to the 50% baseline.
         </p>
-
-        <p>
-          <strong>Thermal lag:</strong> When room temperature is cooler than the dough temperature immediately after mixing,
+<p>
+<strong>Thermal lag:</strong> When room temperature is cooler than the dough temperature immediately after mixing,
           the calculator adds 3 minutes per °F of difference, capped at 90 minutes. This is a calculator safety assumption, not a universal sourdough law.
         </p>
-
-        <p>
-          <strong>Starter feeding:</strong> The calculator assumes the seed starter begins at 100% hydration, then adds your feed flour and feed water to calculate the resulting starter hydration. That derived hydration is used to split the starter added to the dough into flour and water.
+<p>
+<strong>Starter feeding:</strong> The calculator assumes the seed starter begins at 100% hydration, then adds your feed flour and feed water to calculate the resulting starter hydration. That derived hydration is used to split the starter added to the dough into flour and water.
         </p>
-
-        <p>
-          <strong>True dough hydration:</strong> (added water + starter water) ÷ (added flour + starter flour) × 100.
+<p>
+<strong>True dough hydration:</strong> (added water + starter water) ÷ (added flour + starter flour) × 100.
           The hydration calculation therefore includes all flour and water contained in the starter.
         </p>
-
-        <p>
-          <strong>Fermentation model:</strong> Recipe hydration and starter composition are displayed for dough analysis,
+<p>
+<strong>Fermentation model:</strong> Recipe hydration and starter composition are displayed for dough analysis,
           but they do not currently change the Arrhenius-based fermentation-time estimate.
         </p>
-      </section>
-    </div>
+</section></div><div aria-labelledby="tab-math" class="tab-panel" hidden="" id="panel-math" role="tabpanel" tabindex="0"><details>
+<summary>Show mathematical model</summary>
+<div class="math">
+<p><strong>Reference temperature:</strong> T₀ = 80°F = 299.817 K.</p>
+<p><strong>Q10 calibration:</strong> Eₐ/R = ln(2.5) ÷ [1/T₀ − 1/(T₀ + 10 K)].</p>
+<p><strong>Rate ratio:</strong> k(T)/k(T₀) = exp[(Eₐ/R) × (1/T₀ − 1/T)].</p>
+<p><strong>Kinetic time:</strong> 3.5 h × (desired rise ÷ 50) ÷ rate ratio.</p>
+<p><strong>Final estimate:</strong> kinetic time + thermal-lag safety offset.</p>
+<p><strong>Seed starter at 100% hydration:</strong> seed flour = seed starter ÷ 2; seed water = seed starter ÷ 2.</p>
+<p><strong>Resulting starter hydration:</strong> (seed water + feed water) ÷ (seed flour + feed flour) × 100.</p>
+<p><strong>Starter flour in dough:</strong> starter weight ÷ (1 + resulting starter hydration/100).</p>
+<p><strong>Starter water:</strong> starter weight − starter flour.</p>
+<p><strong>True hydration:</strong> (added water + starter water) ÷ (added flour + starter flour) × 100.</p>
+</div>
+</details></div></div></div><div class="actions">
+<button class="secondary" id="clear-all" type="button">Clear All Fields</button>
 
-    <details>
-      <summary>Show mathematical model</summary>
-      <div class="math">
-        <p><strong>Reference temperature:</strong> T₀ = 80°F = 299.817 K.</p>
-        <p><strong>Q10 calibration:</strong> Eₐ/R = ln(2.5) ÷ [1/T₀ − 1/(T₀ + 10 K)].</p>
-        <p><strong>Rate ratio:</strong> k(T)/k(T₀) = exp[(Eₐ/R) × (1/T₀ − 1/T)].</p>
-        <p><strong>Kinetic time:</strong> 3.5 h × (desired rise ÷ 50) ÷ rate ratio.</p>
-        <p><strong>Final estimate:</strong> kinetic time + thermal-lag safety offset.</p>
-        <p><strong>Seed starter at 100% hydration:</strong> seed flour = seed starter ÷ 2; seed water = seed starter ÷ 2.</p>
-        <p><strong>Resulting starter hydration:</strong> (seed water + feed water) ÷ (seed flour + feed flour) × 100.</p>
-        <p><strong>Starter flour in dough:</strong> starter weight ÷ (1 + resulting starter hydration/100).</p>
-        <p><strong>Starter water:</strong> starter weight − starter flour.</p>
-        <p><strong>True hydration:</strong> (added water + starter water) ÷ (added flour + starter flour) × 100.</p>
-      </div>
-    </details>
-
-    <div class="actions">
-      <button id="reset" type="button">Reset defaults</button>
-    </div>
-
-    <div id="error-message" class="error" role="alert"></div>
-
-    <footer>
+</div><div class="error" id="error-message" role="alert"></div><footer>
       This calculator provides a fermentation estimate, not a guarantee. Measure dough temperature immediately after mixing for the best estimate. Dough strength, flour type,
       starter activity, inoculation method, salt, mixing, handling, and other variables can materially
       change actual fermentation time. Use dough expansion, structure, aeration, and feel as the final guide.
     </footer>
-  </main>
 
-  <script>
+
+
+
+
+
+
+
+
+
+
+</main>
+<script>
     (() => {
       const $ = id => document.getElementById(id);
       const els = {
@@ -809,13 +827,47 @@
         bulkEndDate: $("bulk-end-date"), remainingNow: $("remaining-now"), elapsedNow: $("elapsed-now"),
         tempFactor: $("temp-factor"), riseFactor: $("rise-factor"), kineticTime: $("kinetic-time"),
         lagTime: $("lag-time"), processSummary: $("process-summary"), timeline: $("timeline"),
-        reset: $("reset"), error: $("error-message")
+        clearAll: $("clear-all"), error: $("error-message")
       };
 
-      const defaults = {
-        flour: 600, water: 420, starter: 120, seedStarter: 80, feedFlour: 80, feedWater: 80, roomTemp: 72, doughTemp: 78, rise: 50,
-        autolyse: 60, saltFold: 2, restBeforeFold1: 30, fold1To2: 30, fold2To3: 30
-      };
+      const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
+      const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
+
+      function activateTab(key, moveFocus = false) {
+        const targetButton = tabButtons.find(button => button.dataset.tab === key);
+        if (!targetButton) return;
+
+        tabButtons.forEach(button => {
+          const selected = button === targetButton;
+          button.setAttribute("aria-selected", selected ? "true" : "false");
+          button.tabIndex = selected ? 0 : -1;
+        });
+
+        tabPanels.forEach(panel => {
+          panel.hidden = panel.id !== `panel-${key}`;
+        });
+
+        targetButton.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+        if (moveFocus) targetButton.focus();
+      }
+
+      tabButtons.forEach((button, index) => {
+        button.addEventListener("click", () => activateTab(button.dataset.tab));
+
+        button.addEventListener("keydown", event => {
+          let nextIndex = null;
+          if (event.key === "ArrowRight") nextIndex = (index + 1) % tabButtons.length;
+          if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+          if (event.key === "Home") nextIndex = 0;
+          if (event.key === "End") nextIndex = tabButtons.length - 1;
+
+          if (nextIndex !== null) {
+            event.preventDefault();
+            const next = tabButtons[nextIndex];
+            activateTab(next.dataset.tab, true);
+          }
+        });
+      });
 
       const BASE_HOURS = 3.5;
       const BASE_F = 80;
@@ -1111,26 +1163,60 @@
 
       els.useNow.addEventListener("click", () => { setStartToNow(); calculate(); });
 
-      els.reset.addEventListener("click", () => {
-        els.flour.value = defaults.flour;
-        els.water.value = defaults.water;
-        els.starter.value = defaults.starter;
-        els.seedStarter.value = defaults.seedStarter;
-        els.feedFlour.value = defaults.feedFlour;
-        els.feedWater.value = defaults.feedWater;
-        els.roomTemp.value = defaults.roomTemp;
-        els.doughTemp.value = defaults.doughTemp;
-        els.rise.value = defaults.rise;
-        els.autolyse.value = defaults.autolyse;
-        els.saltFold.value = defaults.saltFold;
-        els.restBeforeFold1.value = defaults.restBeforeFold1;
-        els.fold1To2.value = defaults.fold1To2;
-        els.fold2To3.value = defaults.fold2To3;
-        setStartToNow();
-        calculate();
-      });
+      function clearAllFields() {
+        [
+          els.flour, els.water, els.starter,
+          els.seedStarter, els.feedFlour, els.feedWater,
+          els.roomTemp, els.doughTemp, els.rise, els.startTime,
+          els.autolyse, els.saltFold, els.restBeforeFold1,
+          els.fold1To2, els.fold2To3
+        ].forEach(input => { input.value = ""; });
 
-      setStartToNow();
+        latestTotalHours = null;
+        latestStart = null;
+        latestTargetEnd = null;
+
+        els.feedingRatio.textContent = "—";
+        els.fedStarterWeight.textContent = "—";
+        els.starterHydrationDisplay.textContent = "—";
+        els.inoculation.textContent = "—";
+        els.hydration.textContent = "—";
+        els.starterFlour.textContent = "—";
+        els.starterWater.textContent = "—";
+        els.trueFlour.textContent = "—";
+        els.trueWater.textContent = "—";
+        els.trueHydration.textContent = "—";
+
+        els.bulkTime.textContent = "—";
+        els.decimalTime.textContent = "Enter recipe and temperature values";
+        els.bulkEnd.textContent = "—";
+        els.bulkEndDate.textContent = "Enter a start time";
+        els.remainingNow.textContent = "—";
+        els.elapsedNow.textContent = "—";
+        els.tempFactor.textContent = "—";
+        els.riseFactor.textContent = "—";
+        els.kineticTime.textContent = "—";
+        els.lagTime.textContent = "—";
+
+        els.processSummary.textContent =
+          "Enter your process values and start time to build the schedule.";
+
+        els.timeline.replaceChildren();
+        const empty = document.createElement("div");
+        empty.className = "small";
+        empty.textContent =
+          "Enter recipe, temperature, process timing, and start-time values to generate the timeline.";
+        els.timeline.append(empty);
+
+        clearError();
+        activateTab("recipe");
+        els.flour.focus();
+      }
+
+      els.clearAll.addEventListener("click", clearAllFields);
+
+
+      activateTab("recipe");
       calculate();
       setInterval(updateLiveRemaining, 1000);
     })();
