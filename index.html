@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sourdough Bulk Fermentation Calculator & Timeline</title>
+  <style>
+    :root {
+      --bg: #f7f3eb;
+      --panel: #ffffff;
+      --panel-soft: #fbf8f2;
+      --text: #2e2923;
+      --muted: #6f665c;
+      --border: #ddd3c5;
+      --accent: #8a5a2b;
+      --accent-dark: #6f431d;
+      --accent-soft: #efe2d2;
+      --danger: #9c2f2f;
+      --shadow: 0 10px 28px rgba(68, 50, 31, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      width: min(1080px, calc(100% - 32px));
+      margin: 32px auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+    }
+
+    .hint {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .field-subtitle {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .field-note {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.80rem;
+      line-height: 1.4;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 650;
+      font-size: 0.94rem;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: #fff;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(138, 90, 43, 0.13);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .metric-value {
+      margin: 4px 0;
+      font-size: clamp(1.5rem, 5vw, 2.15rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .metric-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .result {
+      margin-top: 18px;
+      border: 2px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .result-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 22px;
+    }
+
+    .result-time {
+      text-align: right;
+      flex: 0 0 auto;
+    }
+
+    .result-time .big {
+      font-size: clamp(1.7rem, 6vw, 2.8rem);
+      font-weight: 850;
+      letter-spacing: -0.04em;
+      color: var(--accent-dark);
+    }
+
+    .result-time .small {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.92rem;
+    }
+
+    .breakdown-row:last-child {
+      border-bottom: 0;
+    }
+
+    .breakdown-row strong {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .assumptions p {
+      margin: 0 0 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .assumptions p:last-child {
+      margin-bottom: 0;
+    }
+
+    .assumptions strong {
+      color: var(--text);
+    }
+
+    details {
+      margin-top: 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .math {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .math p {
+      margin: 7px 0;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: white;
+      border-radius: 11px;
+      padding: 10px 15px;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgba(138, 90, 43, 0.25);
+      outline-offset: 2px;
+    }
+
+    .error {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fcebea;
+      color: var(--danger);
+      border: 1px solid #e8b9b6;
+      display: none;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin: 20px 0 8px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+
+
+    .timing-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 18px;
+    }
+
+    .inline-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    input[type="time"] {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: #fff;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .secondary {
+      background: #fff;
+      color: var(--accent-dark);
+    }
+
+    .process-summary {
+      margin: 10px 0 0;
+      padding: 12px 14px;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .result-cell { min-width: 0; }
+
+    .result-cell + .result-cell {
+      border-left: 1px solid rgba(111, 67, 29, 0.18);
+      padding-left: 16px;
+    }
+
+    .result-cell .big {
+      margin-top: 3px;
+      font-size: clamp(1.45rem, 5vw, 2.35rem);
+      font-weight: 850;
+      letter-spacing: -0.04em;
+      color: var(--accent-dark);
+      overflow-wrap: anywhere;
+    }
+
+    .timeline-card { margin-top: 18px; }
+
+    .timeline {
+      margin-top: 14px;
+      display: grid;
+      gap: 0;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1.3fr) minmax(130px, .8fr) minmax(130px, .9fr);
+      gap: 10px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .timeline-row:last-child { border-bottom: 0; }
+
+    .step-dot {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .step-title {
+      font-weight: 740;
+      font-size: 0.92rem;
+    }
+
+    .step-note {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+
+    .step-time {
+      font-weight: 720;
+      font-size: 0.9rem;
+    }
+
+    .remaining {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .remaining.good { color: #2f6d4f; }
+    .remaining.warn { color: #8a5b00; }
+    .remaining.late { color: var(--danger); }
+
+    @media (max-width: 760px) {
+      .grid-2,
+      .grid-3,
+      .metrics,
+      .timing-grid,
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-cell + .result-cell {
+        border-left: 0;
+        border-top: 1px solid rgba(111, 67, 29, 0.18);
+        padding-left: 0;
+        padding-top: 12px;
+      }
+
+      .timeline-row {
+        grid-template-columns: 36px minmax(0, 1fr);
+      }
+
+      .step-time,
+      .remaining {
+        grid-column: 2;
+      }
+
+      .result-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .result-time {
+        text-align: left;
+      }
+
+      .container {
+        width: min(100% - 20px, 1080px);
+        margin: 18px auto;
+      }
+
+      .card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Sourdough Bulk Fermentation Calculator & Timeline</h1>
+      <p class="subtitle">
+        Enter your recipe weights, starter-feeding amounts, and fermentation conditions to calculate true total dough hydration, estimate bulk fermentation time, and build your stretch-and-fold schedule automatically.
+      </p>
+    </header>
+
+    <div class="grid grid-2">
+      <section class="card" aria-labelledby="recipe-heading">
+        <h2 id="recipe-heading">Recipe weights</h2>
+        <p class="hint">Enter weights directly in grams.</p>
+
+        <div class="field">
+          <label for="flour">Flour Added to Dough (g)</label>
+          <input id="flour" type="number" inputmode="decimal" min="1" step="1" value="600" aria-describedby="flour-note" />
+          <p id="flour-note" class="field-note">Enter only the flour you add separately. Do not include flour already contained in the starter.</p>
+        </div>
+
+        <div class="field">
+          <label for="water">Water Added to Dough (g)</label>
+          <input id="water" type="number" inputmode="decimal" min="0" step="1" value="420" aria-describedby="water-note" />
+          <p id="water-note" class="field-note">Enter only the water you add separately. The calculator adds the starter's water automatically.</p>
+        </div>
+
+        <div class="field">
+          <label for="starter">Starter Added (g)</label>
+          <input id="starter" type="number" inputmode="decimal" min="0" step="1" value="120" />
+        </div>
+
+        <p class="field-note">Starter hydration is calculated from the Starter Feeding section below.</p>
+      </section>
+
+      <section class="card" aria-labelledby="fermentation-heading">
+        <h2 id="fermentation-heading">Fermentation conditions</h2>
+        <p class="hint">Use the room temperature where the dough will ferment, and measure the dough itself immediately after mixing.</p>
+
+        <div class="field">
+          <label for="room-temp">Room Temperature (°F)</label>
+          <input id="room-temp" type="number" inputmode="decimal" step="0.1" value="72" aria-describedby="room-temp-note" />
+          <p id="room-temp-note" class="field-note">Enter the temperature of the room or proofing area where the dough will spend most of bulk fermentation.</p>
+        </div>
+
+        <div class="field">
+          <label for="dough-temp">
+            Dough Temperature After Mixing (°F)
+            <span class="field-subtitle">Final Dough Temperature (FDT)</span>
+          </label>
+          <input id="dough-temp" type="number" inputmode="decimal" step="0.1" value="78" aria-describedby="dough-temp-note" />
+          <p id="dough-temp-note" class="field-note">Measure the center of the dough with an instant-read thermometer immediately after mixing, at the start of bulk fermentation.</p>
+        </div>
+
+        <div class="field">
+          <label for="rise">Desired Rise Percentage (%)</label>
+          <input id="rise" type="number" inputmode="decimal" min="1" max="200" step="1" value="50" aria-describedby="rise-note" />
+          <p id="rise-note" class="field-note">Enter the approximate volume increase you want before ending bulk fermentation, such as 30%, 50%, or 75%.</p>
+        </div>
+      </section>
+    </div>
+
+
+
+    <section class="card" style="margin-top:18px;" aria-labelledby="starter-feeding-heading">
+      <h2 id="starter-feeding-heading">Starter Feeding</h2>
+      <p class="hint">
+        Enter the amounts used in the feeding that produced the starter you are using in this dough.
+        Your current seed starter is assumed to begin at <strong>100% hydration</strong>, based on your established 1:1:1 starter.
+      </p>
+
+      <div class="grid grid-3">
+        <div class="field">
+          <label for="seed-starter">Seed Starter (g)</label>
+          <input id="seed-starter" type="number" inputmode="decimal" min="0.1" step="0.1" value="80" />
+          <p class="field-note">The mature starter carried into this feeding.</p>
+        </div>
+
+        <div class="field">
+          <label for="feed-flour">Feed Flour (g)</label>
+          <input id="feed-flour" type="number" inputmode="decimal" min="0" step="0.1" value="80" />
+        </div>
+
+        <div class="field">
+          <label for="feed-water">Feed Water (g)</label>
+          <input id="feed-water" type="number" inputmode="decimal" min="0" step="0.1" value="80" />
+        </div>
+      </div>
+
+      <div class="metrics" style="margin-top:0;">
+        <div class="metric">
+          <div class="metric-label">Feeding Ratio</div>
+          <div id="feeding-ratio" class="metric-value">1:1:1</div>
+          <div class="metric-note">seed starter : feed flour : feed water</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Resulting Starter Weight</div>
+          <div id="fed-starter-weight" class="metric-value">240.0 g</div>
+          <div class="metric-note">seed starter + feed flour + feed water</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Seed Starter Hydration Used</div>
+          <div class="metric-value">100.0%</div>
+          <div class="metric-note">current assumption for the seed starter</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Resulting Starter Hydration</div>
+          <div id="starter-hydration-display" class="metric-value">100.0%</div>
+          <div class="metric-note">includes the flour and water already inside the seed starter</div>
+        </div>
+      </div>
+
+      <div class="process-summary">
+        If you later maintain a non-100%-hydration starter for multiple feedings, the seed starter itself will no longer be 100% hydration. For an exact single-feed calculation at that point, the seed starter hydration must also be known.
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:18px;" aria-labelledby="timing-heading">
+      <h2 id="timing-heading">Your process timing</h2>
+      <p class="hint">
+        The bulk clock starts when the flour has been fully mixed into the dissolved starter and water. Change any duration below if your routine changes.
+      </p>
+
+      <div class="timing-grid">
+        <div class="field">
+          <label for="start-time">Bulk Fermentation Start Time</label>
+          <div class="inline-row">
+            <input id="start-time" type="time" aria-describedby="start-time-note" />
+            <button id="use-now" type="button" class="secondary">Use current time</button>
+          </div>
+          <p id="start-time-note" class="field-note">Use the time the flour is fully mixed into the starter-water mixture.</p>
+        </div>
+
+        <div class="field">
+          <label for="autolyse-minutes">Autolyse / Rest Duration (minutes)</label>
+          <input id="autolyse-minutes" type="number" min="0" step="1" value="60" />
+          <p class="field-note">Your current routine: 60 minutes before adding salt.</p>
+        </div>
+
+        <div class="field">
+          <label for="salt-fold-minutes">Add Salt + Initial Stretch & Fold (minutes)</label>
+          <input id="salt-fold-minutes" type="number" min="0" step="1" value="2" />
+          <p class="field-note">Your current routine: about 2 minutes.</p>
+        </div>
+
+        <div class="field">
+          <label for="rest-before-fold1">Rest Before Stretch & Fold Set 1 (minutes)</label>
+          <input id="rest-before-fold1" type="number" min="0" step="1" value="30" />
+        </div>
+
+        <div class="field">
+          <label for="fold1-to-fold2">Set 1 → Set 2 Interval (minutes)</label>
+          <input id="fold1-to-fold2" type="number" min="0" step="1" value="30" />
+        </div>
+
+        <div class="field">
+          <label for="fold2-to-fold3">Set 2 → Set 3 Interval (minutes)</label>
+          <input id="fold2-to-fold3" type="number" min="0" step="1" value="30" />
+        </div>
+      </div>
+
+      <div id="process-summary" class="process-summary">Your schedule will appear below after a valid start time is entered.</div>
+    </section>
+
+    <section class="card" style="margin-top:18px;" aria-labelledby="hydration-heading">
+      <h2 id="hydration-heading">Starter composition & true dough hydration</h2>
+      <p class="hint">The starter hydration is derived from your feeding inputs, then the starter used in the dough is separated into its flour and water components before total dough hydration is calculated.</p>
+
+      <div class="metrics" style="margin-top:0;">
+        <div class="metric">
+          <div class="metric-label">Starter Weight %</div>
+          <div id="inoculation" class="metric-value">20.0%</div>
+          <div class="metric-note">starter weight ÷ flour added to dough</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">Direct-Mix Hydration</div>
+          <div id="hydration" class="metric-value">70.0%</div>
+          <div class="metric-note">added water ÷ added flour; excludes starter components</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">Flour Inside Starter</div>
+          <div id="starter-flour" class="metric-value">60.0 g</div>
+          <div class="metric-note">calculated from starter weight and hydration</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">Water Inside Starter</div>
+          <div id="starter-water" class="metric-value">60.0 g</div>
+          <div class="metric-note">calculated from starter weight and hydration</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">True Total Flour</div>
+          <div id="true-flour" class="metric-value">660.0 g</div>
+          <div class="metric-note">added flour + starter flour</div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">True Total Water</div>
+          <div id="true-water" class="metric-value">480.0 g</div>
+          <div class="metric-note">added water + starter water</div>
+        </div>
+
+        <div class="metric" style="grid-column:1 / -1;">
+          <div class="metric-label">True Total Dough Hydration</div>
+          <div id="true-hydration" class="metric-value">72.7%</div>
+          <div class="metric-note">(true total water ÷ true total flour) × 100 — includes the flour and water contained in your starter</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card result" aria-labelledby="result-heading">
+      <div class="result-grid">
+        <div class="result-cell">
+          <h2 id="result-heading">Estimated total bulk fermentation</h2>
+          <div id="bulk-time" class="big">—</div>
+          <div id="decimal-time" class="small">—</div>
+        </div>
+
+        <div class="result-cell">
+          <div class="metric-label">Estimated bulk finish</div>
+          <div id="bulk-end" class="big">—</div>
+          <div id="bulk-end-date" class="small">Enter a start time</div>
+        </div>
+
+        <div class="result-cell">
+          <div class="metric-label">Bulk time remaining now</div>
+          <div id="remaining-now" class="big">—</div>
+          <div id="elapsed-now" class="small">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card timeline-card" aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading">Your fermentation timeline</h2>
+      <p class="hint">“Bulk remaining” shows how much estimated fermentation time is left at each milestone.</p>
+      <div id="timeline" class="timeline" aria-live="polite"></div>
+    </section>
+
+    <div class="grid grid-2" style="margin-top:18px;">
+      <section class="card" aria-labelledby="breakdown-heading">
+        <h2 id="breakdown-heading">Calculation breakdown</h2>
+
+        <div class="breakdown-row">
+          <span>Arrhenius temperature factor</span>
+          <strong id="temp-factor">—</strong>
+        </div>
+
+        <div class="breakdown-row">
+          <span>Rise multiplier</span>
+          <strong id="rise-factor">—</strong>
+        </div>
+
+        <div class="breakdown-row">
+          <span>Kinetic estimate</span>
+          <strong id="kinetic-time">—</strong>
+        </div>
+
+        <div class="breakdown-row">
+          <span>Thermal-lag safety offset</span>
+          <strong id="lag-time">—</strong>
+        </div>
+      </section>
+
+      <section class="card assumptions" aria-labelledby="model-heading">
+        <h2 id="model-heading">Model assumptions</h2>
+
+        <p><strong>Bulk starts:</strong> when the flour is mixed into the starter-water mixture.</p>
+
+        <p><strong>Baseline:</strong> 3.5 hours at 80°F for a 50% rise target.</p>
+
+        <p>
+          <strong>Temperature kinetics:</strong> Arrhenius scaling is calibrated so the fermentation
+          rate changes by a factor of 2.5 for a 10°C temperature increase at the 80°F reference point.
+        </p>
+
+        <p>
+          <strong>Rise scaling:</strong> Target time scales proportionally with desired rise relative
+          to the 50% baseline.
+        </p>
+
+        <p>
+          <strong>Thermal lag:</strong> When room temperature is cooler than the dough temperature immediately after mixing,
+          the calculator adds 3 minutes per °F of difference, capped at 90 minutes. This is a calculator safety assumption, not a universal sourdough law.
+        </p>
+
+        <p>
+          <strong>Starter feeding:</strong> The calculator assumes the seed starter begins at 100% hydration, then adds your feed flour and feed water to calculate the resulting starter hydration. That derived hydration is used to split the starter added to the dough into flour and water.
+        </p>
+
+        <p>
+          <strong>True dough hydration:</strong> (added water + starter water) ÷ (added flour + starter flour) × 100.
+          The hydration calculation therefore includes all flour and water contained in the starter.
+        </p>
+
+        <p>
+          <strong>Fermentation model:</strong> Recipe hydration and starter composition are displayed for dough analysis,
+          but they do not currently change the Arrhenius-based fermentation-time estimate.
+        </p>
+      </section>
+    </div>
+
+    <details>
+      <summary>Show mathematical model</summary>
+      <div class="math">
+        <p><strong>Reference temperature:</strong> T₀ = 80°F = 299.817 K.</p>
+        <p><strong>Q10 calibration:</strong> Eₐ/R = ln(2.5) ÷ [1/T₀ − 1/(T₀ + 10 K)].</p>
+        <p><strong>Rate ratio:</strong> k(T)/k(T₀) = exp[(Eₐ/R) × (1/T₀ − 1/T)].</p>
+        <p><strong>Kinetic time:</strong> 3.5 h × (desired rise ÷ 50) ÷ rate ratio.</p>
+        <p><strong>Final estimate:</strong> kinetic time + thermal-lag safety offset.</p>
+        <p><strong>Seed starter at 100% hydration:</strong> seed flour = seed starter ÷ 2; seed water = seed starter ÷ 2.</p>
+        <p><strong>Resulting starter hydration:</strong> (seed water + feed water) ÷ (seed flour + feed flour) × 100.</p>
+        <p><strong>Starter flour in dough:</strong> starter weight ÷ (1 + resulting starter hydration/100).</p>
+        <p><strong>Starter water:</strong> starter weight − starter flour.</p>
+        <p><strong>True hydration:</strong> (added water + starter water) ÷ (added flour + starter flour) × 100.</p>
+      </div>
+    </details>
+
+    <div class="actions">
+      <button id="reset" type="button">Reset defaults</button>
+    </div>
+
+    <div id="error-message" class="error" role="alert"></div>
+
+    <footer>
+      This calculator provides a fermentation estimate, not a guarantee. Measure dough temperature immediately after mixing for the best estimate. Dough strength, flour type,
+      starter activity, inoculation method, salt, mixing, handling, and other variables can materially
+      change actual fermentation time. Use dough expansion, structure, aeration, and feel as the final guide.
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+      const els = {
+        flour: $("flour"), water: $("water"), starter: $("starter"),
+        seedStarter: $("seed-starter"), feedFlour: $("feed-flour"), feedWater: $("feed-water"),
+        feedingRatio: $("feeding-ratio"), fedStarterWeight: $("fed-starter-weight"),
+        starterHydrationDisplay: $("starter-hydration-display"),
+        starterFlour: $("starter-flour"), starterWater: $("starter-water"),
+        trueFlour: $("true-flour"), trueWater: $("true-water"), trueHydration: $("true-hydration"),
+        roomTemp: $("room-temp"), doughTemp: $("dough-temp"), rise: $("rise"),
+        startTime: $("start-time"), autolyse: $("autolyse-minutes"),
+        saltFold: $("salt-fold-minutes"), restBeforeFold1: $("rest-before-fold1"),
+        fold1To2: $("fold1-to-fold2"), fold2To3: $("fold2-to-fold3"),
+        useNow: $("use-now"), inoculation: $("inoculation"), hydration: $("hydration"),
+        bulkTime: $("bulk-time"), decimalTime: $("decimal-time"), bulkEnd: $("bulk-end"),
+        bulkEndDate: $("bulk-end-date"), remainingNow: $("remaining-now"), elapsedNow: $("elapsed-now"),
+        tempFactor: $("temp-factor"), riseFactor: $("rise-factor"), kineticTime: $("kinetic-time"),
+        lagTime: $("lag-time"), processSummary: $("process-summary"), timeline: $("timeline"),
+        reset: $("reset"), error: $("error-message")
+      };
+
+      const defaults = {
+        flour: 600, water: 420, starter: 120, seedStarter: 80, feedFlour: 80, feedWater: 80, roomTemp: 72, doughTemp: 78, rise: 50,
+        autolyse: 60, saltFold: 2, restBeforeFold1: 30, fold1To2: 30, fold2To3: 30
+      };
+
+      const BASE_HOURS = 3.5;
+      const BASE_F = 80;
+      const BASE_RISE = 50;
+      const Q10 = 2.5;
+      const MAX_LAG_MINUTES = 90;
+      const LAG_MINUTES_PER_F = 3;
+      const fToKelvin = f => ((f - 32) * 5 / 9) + 273.15;
+      const refK = fToKelvin(BASE_F);
+      const eaOverR = Math.log(Q10) / ((1 / refK) - (1 / (refK + 10)));
+
+      let latestTotalHours = null;
+      let latestStart = null;
+      let latestTargetEnd = null;
+
+      function num(el) { return Number.parseFloat(el.value); }
+      function formatRatio(seed, flourFeed, waterFeed) {
+        if (!(seed > 0) || ![seed, flourFeed, waterFeed].every(Number.isFinite)) return "—";
+        const fmt = value => {
+          const rounded = Math.round(value * 100) / 100;
+          return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+        };
+        return `1:${fmt(flourFeed / seed)}:${fmt(waterFeed / seed)}`;
+      }
+
+      function deriveStarterHydration(seed, flourFeed, waterFeed) {
+        if (!(seed > 0) || flourFeed < 0 || waterFeed < 0) return NaN;
+        const seedFlour = seed / 2;
+        const seedWater = seed / 2;
+        const totalFlour = seedFlour + flourFeed;
+        const totalWater = seedWater + waterFeed;
+        return totalFlour > 0 ? (totalWater / totalFlour) * 100 : NaN;
+      }
+      function pad(n) { return String(n).padStart(2, "0"); }
+
+      function setStartToNow() {
+        const now = new Date();
+        els.startTime.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      }
+
+      function parseStartTime() {
+        if (!els.startTime.value) return null;
+        const parts = els.startTime.value.split(":").map(Number);
+        if (parts.length < 2 || parts.some(v => !Number.isFinite(v))) return null;
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate(), parts[0], parts[1], 0, 0);
+      }
+
+      function addMinutes(date, minutes) { return new Date(date.getTime() + minutes * 60000); }
+
+      function formatClock(date) {
+        return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(date);
+      }
+
+      function formatDateTime(date) {
+        return new Intl.DateTimeFormat(undefined, {
+          weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
+        }).format(date);
+      }
+
+      function formatDurationMinutes(minutes) {
+        const abs = Math.max(0, Math.round(Math.abs(minutes)));
+        const h = Math.floor(abs / 60);
+        const m = abs % 60;
+        if (h === 0) return `${m} min`;
+        if (m === 0) return `${h} hr`;
+        return `${h} hr ${m} min`;
+      }
+
+      function showError(message) {
+        els.error.textContent = message;
+        els.error.style.display = "block";
+      }
+
+      function clearError() { els.error.style.display = "none"; }
+
+      function stageRemaining(targetEnd, stageTime) {
+        const minutes = (targetEnd - stageTime) / 60000;
+        if (minutes > 0) return {
+          text: `${formatDurationMinutes(minutes)} bulk remaining`,
+          cls: minutes < 30 ? "warn" : "good"
+        };
+        if (Math.abs(minutes) < 0.5) return { text: "At estimated bulk target", cls: "warn" };
+        return { text: `${formatDurationMinutes(minutes)} after estimated bulk target`, cls: "late" };
+      }
+
+      function createTimelineRow(index, title, note, time, targetEnd) {
+        const remaining = stageRemaining(targetEnd, time);
+        const row = document.createElement("div");
+        row.className = "timeline-row";
+
+        const dot = document.createElement("div");
+        dot.className = "step-dot";
+        dot.textContent = index;
+
+        const content = document.createElement("div");
+        const titleEl = document.createElement("div");
+        titleEl.className = "step-title";
+        titleEl.textContent = title;
+        const noteEl = document.createElement("div");
+        noteEl.className = "step-note";
+        noteEl.textContent = note;
+        content.append(titleEl, noteEl);
+
+        const timeEl = document.createElement("div");
+        timeEl.className = "step-time";
+        timeEl.textContent = formatDateTime(time);
+
+        const remEl = document.createElement("div");
+        remEl.className = `remaining ${remaining.cls}`;
+        remEl.textContent = remaining.text;
+
+        row.append(dot, content, timeEl, remEl);
+        return row;
+      }
+
+      function renderTimeline(start, targetEnd) {
+        const autolyseMin = num(els.autolyse);
+        const saltFoldMin = num(els.saltFold);
+        const rest1Min = num(els.restBeforeFold1);
+        const gap12 = num(els.fold1To2);
+        const gap23 = num(els.fold2To3);
+
+        const autolyseEnd = addMinutes(start, autolyseMin);
+        const saltFoldEnd = addMinutes(autolyseEnd, saltFoldMin);
+        const fold1 = addMinutes(saltFoldEnd, rest1Min);
+        const fold2 = addMinutes(fold1, gap12);
+        const fold3 = addMinutes(fold2, gap23);
+
+        els.timeline.replaceChildren(
+          createTimelineRow(1, "Bulk starts — flour fully mixed in", "Starter is already dissolved in the water.", start, targetEnd),
+          createTimelineRow(2, "Autolyse / rest ends", `Rest for ${formatDurationMinutes(autolyseMin)} before salt.`, autolyseEnd, targetEnd),
+          createTimelineRow(3, "Salt + initial stretch & fold complete", `Allow about ${formatDurationMinutes(saltFoldMin)} for this step.`, saltFoldEnd, targetEnd),
+          createTimelineRow(4, "Stretch & Fold — Set 1", `After a ${formatDurationMinutes(rest1Min)} rest.`, fold1, targetEnd),
+          createTimelineRow(5, "Stretch & Fold — Set 2", `${formatDurationMinutes(gap12)} after Set 1.`, fold2, targetEnd),
+          createTimelineRow(6, "Stretch & Fold — Set 3", `${formatDurationMinutes(gap23)} after Set 2.`, fold3, targetEnd),
+          createTimelineRow(7, "Estimated bulk target", "Check actual rise, aeration, structure, and dough feel before ending bulk.", targetEnd, targetEnd)
+        );
+
+        const afterFold3 = (targetEnd - fold3) / 60000;
+        if (afterFold3 > 0) {
+          els.processSummary.textContent = `After Stretch & Fold Set 3, the model leaves about ${formatDurationMinutes(afterFold3)} of undisturbed bulk fermentation before the estimated target.`;
+        } else if (Math.abs(afterFold3) < 0.5) {
+          els.processSummary.textContent = "Stretch & Fold Set 3 lands almost exactly at the estimated bulk target.";
+        } else {
+          els.processSummary.textContent = `Warning: Stretch & Fold Set 3 is scheduled about ${formatDurationMinutes(afterFold3)} after the estimated bulk target. Consider shortening the process intervals or reassessing the target rise/temperature inputs.`;
+        }
+      }
+
+      function updateLiveRemaining() {
+        if (!latestStart || !latestTargetEnd || !Number.isFinite(latestTotalHours)) {
+          els.remainingNow.textContent = "—";
+          els.elapsedNow.textContent = "—";
+          return;
+        }
+
+        const now = new Date();
+        const untilStart = (latestStart - now) / 60000;
+        if (untilStart > 0) {
+          els.remainingNow.textContent = formatDurationMinutes(latestTotalHours * 60);
+          els.elapsedNow.textContent = `Bulk starts in ${formatDurationMinutes(untilStart)}`;
+          return;
+        }
+
+        const remaining = (latestTargetEnd - now) / 60000;
+        const elapsed = (now - latestStart) / 60000;
+        if (remaining >= 0) {
+          els.remainingNow.textContent = formatDurationMinutes(remaining);
+          els.elapsedNow.textContent = `${formatDurationMinutes(elapsed)} elapsed`;
+        } else {
+          els.remainingNow.textContent = "Target passed";
+          els.elapsedNow.textContent = `${formatDurationMinutes(remaining)} past estimated finish`;
+        }
+      }
+
+      function calculate() {
+        const flour = num(els.flour);
+        const water = num(els.water);
+        const starter = num(els.starter);
+        const seedStarter = num(els.seedStarter);
+        const feedFlour = num(els.feedFlour);
+        const feedWater = num(els.feedWater);
+        const starterHydration = deriveStarterHydration(seedStarter, feedFlour, feedWater);
+        const roomF = num(els.roomTemp);
+        const doughF = num(els.doughTemp);
+        const desiredRise = num(els.rise);
+        const timingValues = [num(els.autolyse), num(els.saltFold), num(els.restBeforeFold1), num(els.fold1To2), num(els.fold2To3)];
+
+        const feedingInputsValid =
+          [seedStarter, feedFlour, feedWater].every(Number.isFinite) &&
+          seedStarter > 0 && feedFlour >= 0 && feedWater >= 0;
+
+        if (feedingInputsValid) {
+          els.feedingRatio.textContent = formatRatio(seedStarter, feedFlour, feedWater);
+          els.fedStarterWeight.textContent = `${(seedStarter + feedFlour + feedWater).toFixed(1)} g`;
+          els.starterHydrationDisplay.textContent = Number.isFinite(starterHydration) ? `${starterHydration.toFixed(1)}%` : "—";
+        } else {
+          els.feedingRatio.textContent = "—";
+          els.fedStarterWeight.textContent = "—";
+          els.starterHydrationDisplay.textContent = "—";
+        }
+
+        const recipeInputsValid =
+          [flour, water, starter, starterHydration].every(Number.isFinite) &&
+          flour > 0 && water >= 0 && starter >= 0 && starterHydration >= 0 && feedingInputsValid;
+
+        if (recipeInputsValid) {
+          const starterHydrationRatio = starterHydration / 100;
+          const starterFlour = starter / (1 + starterHydrationRatio);
+          const starterWater = starter - starterFlour;
+          const trueFlour = flour + starterFlour;
+          const trueWater = water + starterWater;
+          const trueHydration = trueFlour > 0 ? (trueWater / trueFlour) * 100 : NaN;
+
+          els.inoculation.textContent = `${((starter / flour) * 100).toFixed(1)}%`;
+          els.hydration.textContent = `${((water / flour) * 100).toFixed(1)}%`;
+          els.starterFlour.textContent = `${starterFlour.toFixed(1)} g`;
+          els.starterWater.textContent = `${starterWater.toFixed(1)} g`;
+          els.trueFlour.textContent = `${trueFlour.toFixed(1)} g`;
+          els.trueWater.textContent = `${trueWater.toFixed(1)} g`;
+          els.trueHydration.textContent = Number.isFinite(trueHydration) ? `${trueHydration.toFixed(1)}%` : "—";
+        } else {
+          els.inoculation.textContent = "—";
+          els.hydration.textContent = "—";
+          els.starterFlour.textContent = "—";
+          els.starterWater.textContent = "—";
+          els.trueFlour.textContent = "—";
+          els.trueWater.textContent = "—";
+          els.trueHydration.textContent = "—";
+        }
+
+        const mainValid =
+          [flour, water, starter, starterHydration, roomF, doughF, desiredRise].every(Number.isFinite) &&
+          flour > 0 && water >= 0 && starter >= 0 && starterHydration >= 0 && desiredRise > 0 && feedingInputsValid;
+        const timingsValid = timingValues.every(v => Number.isFinite(v) && v >= 0);
+
+        if (!mainValid || !timingsValid) {
+          showError("Enter valid numeric values. Flour, desired rise, and seed starter must be greater than zero; feed flour, feed water, recipe water, starter, and process durations cannot be negative.");
+          latestTotalHours = latestStart = latestTargetEnd = null;
+          return;
+        }
+
+        const doughK = fToKelvin(doughF);
+        if (doughK <= 0) {
+          showError("Dough temperature must be above absolute zero.");
+          return;
+        }
+
+        clearError();
+        const rateRatio = Math.exp(eaOverR * ((1 / refK) - (1 / doughK)));
+        const riseMultiplier = desiredRise / BASE_RISE;
+        const kineticHours = BASE_HOURS * riseMultiplier / rateRatio;
+        const coolingGapF = Math.max(0, doughF - roomF);
+        const lagMinutes = Math.min(MAX_LAG_MINUTES, coolingGapF * LAG_MINUTES_PER_F);
+        const totalHours = kineticHours + lagMinutes / 60;
+        latestTotalHours = totalHours;
+
+        els.bulkTime.textContent = formatDurationMinutes(totalHours * 60);
+        els.decimalTime.textContent = `${totalHours.toFixed(2)} hours total`;
+        els.tempFactor.textContent = `${rateRatio.toFixed(3)}× rate`;
+        els.riseFactor.textContent = `${riseMultiplier.toFixed(2)}×`;
+        els.kineticTime.textContent = formatDurationMinutes(kineticHours * 60);
+        els.lagTime.textContent = `+${Math.round(lagMinutes)} min`;
+
+        const start = parseStartTime();
+        if (!start) {
+          latestStart = latestTargetEnd = null;
+          els.bulkEnd.textContent = "—";
+          els.bulkEndDate.textContent = "Enter a start time";
+          els.remainingNow.textContent = "—";
+          els.elapsedNow.textContent = "—";
+          els.timeline.replaceChildren();
+          const empty = document.createElement("div");
+          empty.className = "small";
+          empty.textContent = "Enter a bulk start time to generate your stretch-and-fold schedule.";
+          els.timeline.append(empty);
+          els.processSummary.textContent = "Your schedule will appear below after a valid start time is entered.";
+          return;
+        }
+
+        const targetEnd = new Date(start.getTime() + totalHours * 3600000);
+        latestStart = start;
+        latestTargetEnd = targetEnd;
+        els.bulkEnd.textContent = formatClock(targetEnd);
+        els.bulkEndDate.textContent = formatDateTime(targetEnd);
+        renderTimeline(start, targetEnd);
+        updateLiveRemaining();
+      }
+
+      [els.flour, els.water, els.starter, els.seedStarter, els.feedFlour, els.feedWater, els.roomTemp, els.doughTemp, els.rise, els.startTime,
+       els.autolyse, els.saltFold, els.restBeforeFold1, els.fold1To2, els.fold2To3]
+        .forEach(input => input.addEventListener("input", calculate));
+
+      els.useNow.addEventListener("click", () => { setStartToNow(); calculate(); });
+
+      els.reset.addEventListener("click", () => {
+        els.flour.value = defaults.flour;
+        els.water.value = defaults.water;
+        els.starter.value = defaults.starter;
+        els.seedStarter.value = defaults.seedStarter;
+        els.feedFlour.value = defaults.feedFlour;
+        els.feedWater.value = defaults.feedWater;
+        els.roomTemp.value = defaults.roomTemp;
+        els.doughTemp.value = defaults.doughTemp;
+        els.rise.value = defaults.rise;
+        els.autolyse.value = defaults.autolyse;
+        els.saltFold.value = defaults.saltFold;
+        els.restBeforeFold1.value = defaults.restBeforeFold1;
+        els.fold1To2.value = defaults.fold1To2;
+        els.fold2To3.value = defaults.fold2To3;
+        setStartToNow();
+        calculate();
+      });
+
+      setStartToNow();
+      calculate();
+      setInterval(updateLiveRemaining, 1000);
+    })();
+  </script>
+</body>
+</html>
