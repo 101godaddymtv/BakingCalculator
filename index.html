@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Sourdough Bulk Fermentation Calculator &amp; Timeline v7</title>
+<title>Sourdough Bulk Fermentation Calculator &amp; Timeline v11</title>
 <style>
     :root {
       --bg: #f7f3eb;
@@ -464,27 +464,27 @@
     }
 
     .tab-list {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      scrollbar-width: thin;
-      padding: 4px 2px 10px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      padding: 4px 0 12px;
       margin-bottom: 10px;
-      -webkit-overflow-scrolling: touch;
     }
 
     .tab-button {
-      flex: 0 0 auto;
-      min-height: 44px;
+      width: 100%;
+      min-width: 0;
+      min-height: 48px;
       border: 1px solid var(--border);
       background: var(--panel);
       color: var(--text);
-      border-radius: 999px;
-      padding: 9px 14px;
-      font-size: 0.9rem;
+      border-radius: 12px;
+      padding: 9px 10px;
+      font-size: 0.88rem;
       font-weight: 700;
-      white-space: nowrap;
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: anywhere;
       cursor: pointer;
     }
 
@@ -528,13 +528,65 @@
 
     @media (max-width: 760px) {
       .tab-list {
-        margin-left: -2px;
-        margin-right: -2px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
       }
 
       .tab-button {
-        font-size: 0.86rem;
-        padding-inline: 12px;
+        font-size: 0.84rem;
+        padding: 9px 8px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .tab-list {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .tab-button {
+        min-height: 46px;
+        font-size: 0.82rem;
+      }
+    }
+
+    .timeline-print-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin: 8px 0 14px;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+
+      #panel-timeline,
+      #panel-timeline * {
+        visibility: visible !important;
+      }
+
+      #panel-timeline {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        background: #fff;
+      }
+
+      #panel-timeline .card {
+        border: 0;
+        box-shadow: none;
+        padding: 0;
+      }
+
+      #panel-timeline .timeline-print-actions,
+      #panel-timeline button {
+        display: none !important;
+      }
+
+      #panel-timeline .timeline-row {
+        break-inside: avoid;
       }
     }
 </style>
@@ -544,25 +596,7 @@
 <header>
 <h1>Sourdough Bulk Fermentation Calculator &amp; Timeline</h1>
 <p class="subtitle">Enter your recipe, starter feeding, fermentation conditions, and process timing in separate tabs. The calculator then computes true dough hydration, bulk-fermentation timing, and your stretch-and-fold schedule.</p>
-</header><div class="tabs-shell"><div aria-label="Sourdough calculator sections" class="tab-list" role="tablist"><button aria-controls="panel-recipe" aria-selected="true" class="tab-button" data-tab="recipe" id="tab-recipe" role="tab" tabindex="0" type="button">Recipe</button><button aria-controls="panel-starter" aria-selected="false" class="tab-button" data-tab="starter" id="tab-starter" role="tab" tabindex="-1" type="button">Starter Feeding</button><button aria-controls="panel-fermentation" aria-selected="false" class="tab-button" data-tab="fermentation" id="tab-fermentation" role="tab" tabindex="-1" type="button">Fermentation</button><button aria-controls="panel-timing" aria-selected="false" class="tab-button" data-tab="timing" id="tab-timing" role="tab" tabindex="-1" type="button">Process Timing</button><button aria-controls="panel-hydration" aria-selected="false" class="tab-button" data-tab="hydration" id="tab-hydration" role="tab" tabindex="-1" type="button">Hydration</button><button aria-controls="panel-results" aria-selected="false" class="tab-button" data-tab="results" id="tab-results" role="tab" tabindex="-1" type="button">Bulk Results</button><button aria-controls="panel-timeline" aria-selected="false" class="tab-button" data-tab="timeline" id="tab-timeline" role="tab" tabindex="-1" type="button">Timeline</button><button aria-controls="panel-breakdown" aria-selected="false" class="tab-button" data-tab="breakdown" id="tab-breakdown" role="tab" tabindex="-1" type="button">Calculation Breakdown</button><button aria-controls="panel-assumptions" aria-selected="false" class="tab-button" data-tab="assumptions" id="tab-assumptions" role="tab" tabindex="-1" type="button">Model Assumptions</button><button aria-controls="panel-math" aria-selected="false" class="tab-button" data-tab="math" id="tab-math" role="tab" tabindex="-1" type="button">Mathematical Model</button></div><div class="tab-panels"><div aria-labelledby="tab-recipe" class="tab-panel" id="panel-recipe" role="tabpanel" tabindex="0"><section aria-labelledby="recipe-heading" class="card">
-<h2 id="recipe-heading">Recipe weights</h2>
-<p class="hint">Enter weights directly in grams.</p>
-<div class="field">
-<label for="flour">Flour Added to Dough (g)</label>
-<input aria-describedby="flour-note" id="flour" inputmode="decimal" min="1" step="1" type="number"/>
-<p class="field-note" id="flour-note">Enter only the flour you add separately. Do not include flour already contained in the starter.</p>
-</div>
-<div class="field">
-<label for="water">Water Added to Dough (g)</label>
-<input aria-describedby="water-note" id="water" inputmode="decimal" min="0" step="1" type="number"/>
-<p class="field-note" id="water-note">Enter only the water you add separately. The calculator adds the starter's water automatically.</p>
-</div>
-<div class="field">
-<label for="starter">Starter Added (g)</label>
-<input id="starter" inputmode="decimal" min="0" step="1" type="number"/>
-</div>
-<p class="field-note">Starter hydration is calculated from the Starter Feeding section below.</p>
-</section></div><div aria-labelledby="tab-starter" class="tab-panel" hidden="" id="panel-starter" role="tabpanel" tabindex="0"><section aria-labelledby="starter-feeding-heading" class="card" style="margin-top:18px;">
+</header><div class="tabs-shell"><div aria-label="Sourdough calculator sections" class="tab-list" role="tablist"><button aria-controls="panel-starter" aria-selected="true" class="tab-button" data-tab="starter" id="tab-starter" role="tab" tabindex="0" type="button">Starter Feeding</button><button aria-controls="panel-recipe" aria-selected="false" class="tab-button" data-tab="recipe" id="tab-recipe" role="tab" tabindex="-1" type="button">Recipe</button><button aria-controls="panel-fermentation" aria-selected="false" class="tab-button" data-tab="fermentation" id="tab-fermentation" role="tab" tabindex="-1" type="button">Fermentation</button><button aria-controls="panel-timing" aria-selected="false" class="tab-button" data-tab="timing" id="tab-timing" role="tab" tabindex="-1" type="button">Process Timing</button><button aria-controls="panel-hydration" aria-selected="false" class="tab-button" data-tab="hydration" id="tab-hydration" role="tab" tabindex="-1" type="button">Hydration</button><button aria-controls="panel-results" aria-selected="false" class="tab-button" data-tab="results" id="tab-results" role="tab" tabindex="-1" type="button">Bulk Results</button><button aria-controls="panel-timeline" aria-selected="false" class="tab-button" data-tab="timeline" id="tab-timeline" role="tab" tabindex="-1" type="button">Timeline</button><button aria-controls="panel-breakdown" aria-selected="false" class="tab-button" data-tab="breakdown" id="tab-breakdown" role="tab" tabindex="-1" type="button">Calculation Breakdown</button><button aria-controls="panel-assumptions" aria-selected="false" class="tab-button" data-tab="assumptions" id="tab-assumptions" role="tab" tabindex="-1" type="button">Model Assumptions</button><button aria-controls="panel-math" aria-selected="false" class="tab-button" data-tab="math" id="tab-math" role="tab" tabindex="-1" type="button">Mathematical Model</button></div><div class="tab-panels"><div aria-labelledby="tab-starter" class="tab-panel" id="panel-starter" role="tabpanel" tabindex="0"><section aria-labelledby="starter-feeding-heading" class="card" style="margin-top:18px;">
 <h2 id="starter-feeding-heading">Starter Feeding</h2>
 <p class="hint">
         Enter the amounts used in the feeding that produced the starter you are using in this dough.
@@ -608,6 +642,24 @@
 <div class="process-summary">
         If you later maintain a non-100%-hydration starter for multiple feedings, the seed starter itself will no longer be 100% hydration. For an exact single-feed calculation at that point, the seed starter hydration must also be known.
       </div>
+</section></div><div aria-labelledby="tab-recipe" class="tab-panel" hidden="" id="panel-recipe" role="tabpanel" tabindex="0"><section aria-labelledby="recipe-heading" class="card">
+<h2 id="recipe-heading">Recipe weights</h2>
+<p class="hint">Enter weights directly in grams.</p>
+<div class="field">
+<label for="flour">Flour Added to Dough (g)</label>
+<input aria-describedby="flour-note" id="flour" inputmode="decimal" min="1" step="1" type="number"/>
+<p class="field-note" id="flour-note">Enter only the flour you add separately. Do not include flour already contained in the starter.</p>
+</div>
+<div class="field">
+<label for="water">Water Added to Dough (g)</label>
+<input aria-describedby="water-note" id="water" inputmode="decimal" min="0" step="1" type="number"/>
+<p class="field-note" id="water-note">Enter only the water you add separately. The calculator adds the starter's water automatically.</p>
+</div>
+<div class="field">
+<label for="starter">Starter Added (g)</label>
+<input id="starter" inputmode="decimal" min="0" step="1" type="number"/>
+</div>
+<p class="field-note">Starter hydration is calculated from the Starter Feeding section below.</p>
 </section></div><div aria-labelledby="tab-fermentation" class="tab-panel" hidden="" id="panel-fermentation" role="tabpanel" tabindex="0"><section aria-labelledby="fermentation-heading" class="card">
 <h2 id="fermentation-heading">Fermentation conditions</h2>
 <p class="hint">Use the room temperature where the dough will ferment, and measure the dough itself immediately after mixing.</p>
@@ -727,7 +779,7 @@
 </div>
 </section></div><div aria-labelledby="tab-timeline" class="tab-panel" hidden="" id="panel-timeline" role="tabpanel" tabindex="0"><section aria-labelledby="timeline-heading" class="card timeline-card">
 <h2 id="timeline-heading">Your fermentation timeline</h2>
-<p class="hint">“Bulk remaining” shows how much estimated fermentation time is left at each milestone.</p>
+<p class="hint">“Bulk remaining” shows how much estimated fermentation time is left at each milestone.</p><div class="timeline-print-actions"><button class="secondary" id="print-timeline" type="button">Print Timeline</button></div>
 <div aria-live="polite" class="timeline" id="timeline"></div>
 </section></div><div aria-labelledby="tab-breakdown" class="tab-panel" hidden="" id="panel-breakdown" role="tabpanel" tabindex="0"><section aria-labelledby="breakdown-heading" class="card">
 <h2 id="breakdown-heading">Calculation breakdown</h2>
@@ -790,23 +842,11 @@
 </div>
 </details></div></div></div><div class="actions">
 <button class="secondary" id="clear-all" type="button">Clear All Fields</button>
-
 </div><div class="error" id="error-message" role="alert"></div><footer>
       This calculator provides a fermentation estimate, not a guarantee. Measure dough temperature immediately after mixing for the best estimate. Dough strength, flour type,
       starter activity, inoculation method, salt, mixing, handling, and other variables can materially
       change actual fermentation time. Use dough expansion, structure, aeration, and feel as the final guide.
     </footer>
-
-
-
-
-
-
-
-
-
-
-
 </main>
 <script>
     (() => {
@@ -827,7 +867,7 @@
         bulkEndDate: $("bulk-end-date"), remainingNow: $("remaining-now"), elapsedNow: $("elapsed-now"),
         tempFactor: $("temp-factor"), riseFactor: $("rise-factor"), kineticTime: $("kinetic-time"),
         lagTime: $("lag-time"), processSummary: $("process-summary"), timeline: $("timeline"),
-        clearAll: $("clear-all"), error: $("error-message")
+        printTimeline: $("print-timeline"), clearAll: $("clear-all"), error: $("error-message")
       };
 
       const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
@@ -1209,14 +1249,18 @@
         els.timeline.append(empty);
 
         clearError();
-        activateTab("recipe");
-        els.flour.focus();
+        activateTab("starter");
+        els.seedStarter.focus();
       }
 
       els.clearAll.addEventListener("click", clearAllFields);
 
 
-      activateTab("recipe");
+      els.printTimeline.addEventListener("click", () => {
+        window.print();
+      });
+
+      activateTab("starter");
       calculate();
       setInterval(updateLiveRemaining, 1000);
     })();
